@@ -1,5 +1,5 @@
 import { Menu, Bell } from 'lucide-react'
-import { useApp } from '../../context/AppContext'
+import { useApp } from '../ui/context/AppContext'
 
 export default function Header({ onMenuClick, titulo }) {
   const { state } = useApp()

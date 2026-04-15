@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
-import { useApp } from '../context/AppContext'
+import { useApp } from '../components/ui/context/AppContext'
 import { loginWithEmail, registerWithEmail } from '../services/authService'
 
 export default function Login() {

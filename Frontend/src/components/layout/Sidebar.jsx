@@ -1,5 +1,5 @@
 import { NavLink, useLocation } from 'react-router-dom'
-import { useApp } from '../../context/AppContext'
+import { useApp } from '../ui/context/AppContext'
 
 const nav = [
   { to: '/',              icono: '📊', label: 'Inicio',           grupo: 'principal' },

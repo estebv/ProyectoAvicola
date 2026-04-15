@@ -1,4 +1,4 @@
-import { useApp } from '../context/AppContext'
+import { useApp } from '../components/ui/context/AppContext'
 import Layout from '../components/layout/Layout'
 import { KpiCard, AlertaBanner } from '../components/ui'
 import { useNavigate } from 'react-router-dom'

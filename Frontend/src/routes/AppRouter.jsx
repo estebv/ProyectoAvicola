@@ -1,5 +1,5 @@
 import { createBrowserRouter, Navigate, Outlet, RouterProvider } from 'react-router-dom'
-import { AppProvider, useApp } from '../context/AppContext'
+import { AppProvider, useApp } from '../components/ui/context/AppContext'
 import ProtectedRoute from './ProtectedRoute'
 import Dashboard from '../pages/Dashboard'
 import Galpones from '../pages/Galpones'

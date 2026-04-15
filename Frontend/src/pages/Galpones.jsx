@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import Layout from '../components/layout/Layout'
-import { useApp } from '../context/AppContext'
+import { useApp } from '../components/ui/context/AppContext'
 import { Campo, Toast, Badge } from '../components/ui'
 import { Plus, Save, Home } from 'lucide-react'
 

@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import Layout from '../components/layout/Layout'
-import { useApp } from '../context/AppContext'
+import { useApp } from '../components/ui/context/AppContext'
 import { Campo, SelectorGalpon, CalidadSelector, Toast, FilaVacia } from '../components/ui'
 import { Plus, Save } from 'lucide-react'
 import { isAdmin } from '../helpers/permissions'

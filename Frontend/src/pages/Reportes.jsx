@@ -1,5 +1,5 @@
 import Layout from '../components/layout/Layout'
-import { useApp } from '../context/AppContext'
+import { useApp } from '../components/ui/context/AppContext'
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
   LineChart, Line, Legend, PieChart, Pie, Cell

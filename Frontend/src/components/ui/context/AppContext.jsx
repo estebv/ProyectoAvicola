@@ -1,41 +1,18 @@
 import { createContext, useContext, useReducer } from 'react'
-import { clearAuthSession, getAuthSession, saveAuthSession } from '../helpers/storage'
-import { isAdmin } from '../helpers/permissions'
+import { clearAuthSession, getAuthSession, saveAuthSession } from '../../../helpers/storage'
+import { isAdmin } from '../../../helpers/permissions'
 
 const today = new Date().toISOString().split('T')[0]
 
-// Estado de datos del dominio (sin sesión).
+// Estado de datos del dominio (sin sesión) - completamente vacío.
 const initialDataState = {
   user: null,
-  galpones: [
-    { id: 1, numero: 1, numero_aves: 4200, raza: 'Lohmann', estado: 'activo' },
-    { id: 2, numero: 2, numero_aves: 5100, raza: 'Hy-Line', estado: 'activo' },
-    { id: 3, numero: 3, numero_aves: 3800, raza: 'Shaver', estado: 'alerta' },
-    { id: 4, numero: 4, numero_aves: 4600, raza: 'Lohmann', estado: 'activo' },
-    { id: 5, numero: 5, numero_aves: 5140, raza: 'Hy-Line', estado: 'activo' },
-  ],
-  huevos: [
-    { id: 1, id_galpon: 1, fecha_puesta: today, total_huevo: 3612, peso_huevo: 58.5, calidad_huevo: 4 },
-    { id: 2, id_galpon: 2, fecha_puesta: today, total_huevo: 4488, peso_huevo: 61.2, calidad_huevo: 5 },
-    { id: 3, id_galpon: 3, fecha_puesta: today, total_huevo: 2940, peso_huevo: 55.8, calidad_huevo: 3 },
-  ],
-  alimentos: [
-    { id: 1, id_galpon: 1, marca_alimento: 'ProLay Feed Pro', etapa_alimento: 'Postura', fecha_consumo: today, cantidad_kg: 420 },
-    { id: 2, id_galpon: 2, marca_alimento: 'NutriAve Plus', etapa_alimento: 'Postura', fecha_consumo: today, cantidad_kg: 510 },
-    { id: 3, id_galpon: 3, marca_alimento: 'ProLay Feed Pro', etapa_alimento: 'Postura', fecha_consumo: today, cantidad_kg: 244 },
-  ],
-  mortalidad: [
-    { id: 1, id_galpon: 3, estado_salud: 'Muerta', fecha_muerte: today, causa_muerte: 'Calor excesivo', numero_aves: 8 },
-    { id: 2, id_galpon: 1, estado_salud: 'Muerta', fecha_muerte: today, causa_muerte: 'Enfermedad respiratoria', numero_aves: 3 },
-  ],
-  condiciones: [
-    { id: 1, id_galpon: 1, fecha: today, temperatura: 24.5, humedad: 65.0, ventilacion: 'Buena', iluminacion: '16h' },
-    { id: 2, id_galpon: 3, fecha: today, temperatura: 32.4, humedad: 78.0, ventilacion: 'Deficiente', iluminacion: '14h' },
-  ],
-  alertas: [
-    { id: 1, tipo: 'peligro', mensaje: 'Galpón 3: Temperatura muy alta (32.4°C)', hora: '08:15 am' },
-    { id: 2, tipo: 'aviso', mensaje: 'Galpón 3: Poco alimento consumido (61%)', hora: '07:00 am' },
-  ]
+  galpones: [],
+  huevos: [],
+  alimentos: [],
+  mortalidad: [],
+  condiciones: [],
+  alertas: []
 }
 
 function getInitialState() {

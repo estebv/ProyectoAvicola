@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import Layout from '../components/layout/Layout'
-import { useApp } from '../context/AppContext'
+import { useApp } from '../components/ui/context/AppContext'
 import { updateUserProfile } from '../services/authService'
 
 export default function Perfil() {
