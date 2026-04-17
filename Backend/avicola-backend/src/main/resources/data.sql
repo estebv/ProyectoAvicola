@@ -1,4 +1,0 @@
--- =============================================
---  Base de datos vacía - La Reina del Huevo
--- =============================================
--- Sin datos de prueba - la aplicación iniciará completamente vacía
