@@ -1,4 +1,4 @@
-# 🐔 La Reina del Huevo — Sistema de Gestión Avícola
+# 🐔  Sistema de Gestión Avícola
 
 Sistema web completo para gestionar una granja avícola. Registra y analiza galpones, aves, producción de huevos, alimentos, mortalidad y condiciones ambientales.
 
