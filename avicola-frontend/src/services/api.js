@@ -37,10 +37,6 @@ async function apiRequest(endpoint, options = {}) {
     ...options,
   }
   
-  // Agregar token de autorización si existe
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`
-  }
   
   try {
     const response = await fetch(url, config)
@@ -88,24 +84,7 @@ export const api = {
   delete: (endpoint, options = {}) => 
     apiRequest(endpoint, { method: 'DELETE', ...options }),
   
-  // Para subir archivos (multipart/form-data)
-  upload: (endpoint, formData, options = {}) => {
-    const token = localStorage.getItem('authToken')
-    const url = `${API_BASE_URL}${endpoint}`
-    
-    const config = {
-      method: 'POST',
-      body: formData,
-      headers: {},
-      ...options,
-    }
-    
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`
-    }
-    
-    return fetch(url, config).then(handleResponse)
-  },
+
 }
 
 // Exportar la URL base para referencia

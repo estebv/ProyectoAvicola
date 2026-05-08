@@ -8,7 +8,7 @@ export const USER_ROLES = {
   ADMIN: 'admin',
   OPERARIO: 'operario',
   SUPERVISOR: 'supervisor',
-  VETERINARIO: 'veterinario'
+ 
 }
 
 export const ESTADOS_SALUD = {
@@ -28,17 +28,16 @@ export const ESTADOS_VACUNACION = {
 
 // ==================== CALIDADES Y CATEGORÍAS ====================
 export const CALIDADES_HUEVO = {
-  EXTRA: 1,
-  PRIMERA: 2,
-  SEGUNDA: 3,
-  TERCERA: 4,
-  INDUSTRIAL: 5
+  JUMBO: 1,
+  AAA: 2,
+  AA: 3,
+  A: 4,
+  B: 5
 }
 
 export const ETAPAS_ALIMENTO = {
   INICIO: 'inicio',
   CRECIMIENTO: 'crecimiento',
-  ENGORDE: 'engorde',
   POSTURA: 'postura',
   RECRIA: 'recría'
 }
@@ -46,16 +45,13 @@ export const ETAPAS_ALIMENTO = {
 export const TIPOS_VENTILACION = {
   NATURAL: 'natural',
   MECANICA: 'mecanica',
-  MIXTA: 'mixta',
-  CLIMATIZADA: 'climatizada'
+ 
 }
 
 export const TIPOS_ILUMINACION = {
   NATURAL: 'natural',
   ARTIFICIAL: 'artificial',
-  MIXTA: 'mixta',
-  LED: 'led',
-  INCANDESCENTE: 'incandescente'
+ 
 }
 
 // ==================== UNIDADES Y MEDIDAS ====================
@@ -169,15 +165,6 @@ export const API_ENDPOINTS = {
   HUEVOS: '/huevos',
   ALIMENTOS: '/alimentos',
   CLIMA: '/clima'
-}
-
-// ==================== CONFIGURACIÓN DE CACHE ====================
-export const CACHE_CONFIG = {
-  DEFAULT_TTL: 300, // 5 minutos
-  STATISTICS_TTL: 600, // 10 minutos
-  DASHBOARD_TTL: 180, // 3 minutos
-  MAX_SIZE: 100,
-  CLEANUP_INTERVAL: 60000 // 1 minuto
 }
 
 // ==================== UTILIDADES ====================

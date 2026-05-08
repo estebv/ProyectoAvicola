@@ -11,6 +11,7 @@ import Condiciones from '../pages/Condiciones'
 import Reportes from '../pages/Reportes'
 import Login from '../pages/Login'
 import Perfil from '../pages/Perfil'
+import LandingPage from '../pages/LandingPage'
 
 function RootLayout() {
   // Envuelve TODA la app con el contexto global.
@@ -26,7 +27,7 @@ function LoginRoute() {
 
   // Si ya hay sesión, no tiene sentido volver al login.
   if (state.user) {
-    return <Navigate to="/" replace />
+    return <Navigate to="/dashboard" replace />
   }
 
   return <Login />
@@ -37,12 +38,13 @@ const router = createBrowserRouter([
     path: '/',
     element: <RootLayout />,
     children: [
+      { index: true, element: <LandingPage /> },
       { path: 'login', element: <LoginRoute /> },
       {
         // Todas estas rutas requieren sesión por ProtectedRoute.
         element: <ProtectedRoute />,
         children: [
-          { index: true, element: <Dashboard /> },
+          { path: 'dashboard', element: <Dashboard /> },
           { path: 'galpones', element: <Galpones /> },
           { path: 'aves', element: <Aves /> },
           { path: 'huevos', element: <Huevos /> },

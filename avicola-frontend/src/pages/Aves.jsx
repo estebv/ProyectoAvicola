@@ -2,7 +2,8 @@ import { useState } from 'react'
 import Layout from '../components/layout/Layout'
 import { useApp } from '../components/ui/context/AppContext'
 import { Campo, SelectorGalpon, Toast, FilaVacia } from '../components/ui'
-import { Plus, Save } from 'lucide-react'
+import { Plus, Save, Loader2 } from 'lucide-react'
+import { api } from '../services/api'
 
 const hoy = new Date().toISOString().split('T')[0]
 const razas = ['Lohmann', 'Hy-Line', 'Shaver', 'ISA Brown', 'Novogen', 'Otra']
@@ -15,13 +16,9 @@ export default function Aves() {
   const [errores, setErrores] = useState({})
   const [toast, setToast] = useState(null)
   const [mostrarForm, setMostrarForm] = useState(false)
+  const [guardando, setGuardando] = useState(false)
 
-  // Aquí se simulan lotes; idealmente vendrían de backend/context.
-  const [avesRegistradas, setAvesRegistradas] = useState([
-    { id: 1, id_galpon: 1, raza: 'Lohmann', fecha_nacimiento: '2023-06-01', fecha_llegada: '2023-06-15', origen: 'Proveedor local', total_aves: 4200 },
-    { id: 2, id_galpon: 2, raza: 'Hy-Line', fecha_nacimiento: '2023-05-10', fecha_llegada: '2023-05-25', origen: 'Importado', total_aves: 5100 },
-    { id: 3, id_galpon: 3, raza: 'Shaver', fecha_nacimiento: '2023-07-20', fecha_llegada: '2023-08-01', origen: 'Proveedor local', total_aves: 3800 },
-  ])
+  const avesRegistradas = state.aves || []
 
   function validar() {
     const e = {}
@@ -33,17 +30,33 @@ export default function Aves() {
     return e
   }
 
-  function guardar(e) {
+  async function guardar(e) {
     e.preventDefault()
     const e2 = validar()
     setErrores(e2)
     if (Object.keys(e2).length > 0) return
-    const nuevo = { ...form, id: Date.now(), id_galpon: Number(form.id_galpon), total_aves: Number(form.total_aves) }
-    setAvesRegistradas(prev => [nuevo, ...prev])
-    setToast({ tipo: 'exito', mensaje: '✅ Lote de aves registrado correctamente' })
-    setForm(formVacio)
-    setMostrarForm(false)
-    setTimeout(() => setToast(null), 3000)
+
+    setGuardando(true)
+    try {
+      // ✅ POST /api/aves?idGalpon=X -> guarda en DB
+      const nuevo = await api.post(`/aves?idGalpon=${form.id_galpon}`, {
+        raza:             form.raza,
+        fecha_nacimiento: form.fecha_nacimiento,
+        fecha_llegada:    form.fecha_llegada,
+        origen:           form.origen,
+        total_aves:       Number(form.total_aves),
+      })
+
+      dispatch({ type: 'ADD_AVE', payload: nuevo })
+      setToast({ tipo: 'exito', mensaje: '✅ Lote de aves registrado correctamente' })
+      setForm(formVacio)
+      setMostrarForm(false)
+    } catch (err) {
+      setToast({ tipo: 'error', mensaje: err.message || 'Error al conectar con el servidor' })
+    } finally {
+      setGuardando(false)
+      setTimeout(() => setToast(null), 3000)
+    }
   }
 
   const galponNombre = (id) => {
@@ -143,9 +156,15 @@ export default function Aves() {
             </Campo>
 
             <div className="flex gap-3 pt-2">
-              <button type="button" onClick={() => setMostrarForm(false)} className="btn-secondary">Cancelar</button>
-              <button type="submit" className="btn-primary flex-1 justify-center">
-                <Save size={18} /> Guardar lote
+              <button type="button" disabled={guardando} onClick={() => setMostrarForm(false)} className="btn-secondary">Cancelar</button>
+              <button type="submit" disabled={guardando} className="btn-primary flex-1 justify-center">
+                {guardando ? (
+                  <Loader2 className="w-5 h-5 animate-spin" />
+                ) : (
+                  <>
+                    <Save size={18} /> Guardar lote
+                  </>
+                )}
               </button>
             </div>
           </form>

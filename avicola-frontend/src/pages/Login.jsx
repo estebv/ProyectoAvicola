@@ -1,17 +1,37 @@
-import { useState } from 'react'
-import { useLocation, useNavigate } from 'react-router-dom'
+import { useState, useEffect } from 'react'
+import { useLocation, useNavigate, useSearchParams } from 'react-router-dom'
 import { useApp } from '../components/ui/context/AppContext'
-import { loginWithEmail, registerWithEmail } from '../services/authService'
+import { api } from '../services/api'
 import { CheckboxGroup } from '../components/ui/Checkbox'
+
+// ─────────────────────────────────────────────────────────────────
+//  ✅ CORRECCIÓN BUG 1:
+//  Antes: llamaba a loginWithEmail() de authService.js, que era
+//         un mock que solo buscaba en localStorage. NUNCA llamaba
+//         al backend Spring Boot.
+//  Ahora: llama directamente a api.post('/auth/login') y
+//         api.post('/auth/register') que sí van al backend real.
+// ─────────────────────────────────────────────────────────────────
 
 export default function Login() {
   const navigate = useNavigate()
   const location = useLocation()
+  const [searchParams] = useSearchParams()
   const { dispatch } = useApp()
   const [isRegister, setIsRegister] = useState(false)
   const [form, setForm] = useState({ nombre: '', email: '', password: '', rol: 'usuario' })
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
+
+  // Sincronizar el modo registro con el parámetro de la URL
+  useEffect(() => {
+    const mode = searchParams.get('mode')
+    if (mode === 'register') {
+      setIsRegister(true)
+    } else {
+      setIsRegister(false)
+    }
+  }, [searchParams])
 
   async function handleSubmit(event) {
     event.preventDefault()
@@ -19,17 +39,31 @@ export default function Login() {
     setLoading(true)
 
     try {
-      const user = isRegister
-        ? await registerWithEmail(form)
-        : await loginWithEmail(form)
-      // 2) guarda sesión en contexto + localStorage (vía reducer)
+      let user
+
+      if (isRegister) {
+        // ✅ POST /api/auth/register → crea usuario en MySQL
+        user = await api.post('/auth/register', {
+          nombre:   form.nombre.trim(),
+          email:    form.email.trim().toLowerCase(),
+          password: form.password,
+          rol:      form.rol,
+        })
+      } else {
+        // ✅ POST /api/auth/login → valida credenciales en MySQL
+        user = await api.post('/auth/login', {
+          email:    form.email.trim().toLowerCase(),
+          password: form.password,
+        })
+      }
+
+      // Guarda la sesión en contexto + localStorage
       dispatch({ type: 'LOGIN', payload: user })
 
-      // Redirige a la ruta previa si el usuario intentaba abrir una ruta protegida.
-      const redirectTo = location.state?.from || '/'
+      const redirectTo = location.state?.from || '/dashboard'
       navigate(redirectTo, { replace: true })
     } catch (err) {
-      setError(err.message)
+      setError(err.message || 'Error al conectar con el servidor')
     } finally {
       setLoading(false)
     }
@@ -38,9 +72,11 @@ export default function Login() {
   return (
     <div className="min-h-screen bg-gray-100 flex items-center justify-center px-4">
       <div className="w-full max-w-md card p-8">
-        <h1 className="text-2xl font-bold text-gray-900 mb-2">{isRegister ? 'Crear cuenta' : 'Iniciar sesión'}</h1>
+        <h1 className="text-2xl font-bold text-gray-900 mb-2">
+          {isRegister ? 'Crear cuenta' : 'Iniciar sesión'}
+        </h1>
         <p className="text-sm text-gray-500 mb-6">
-          Usa el acceso de prueba: `admin@avicola.com` / `123456`.
+          Acceso de prueba: <code>admin@avicola.com</code> / <code>123456</code>
         </p>
 
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -52,7 +88,7 @@ export default function Login() {
                 required
                 className="input-field"
                 value={form.nombre}
-                onChange={event => setForm(prev => ({ ...prev, nombre: event.target.value }))}
+                onChange={e => setForm(prev => ({ ...prev, nombre: e.target.value }))}
                 placeholder="Tu nombre completo"
               />
             </div>
@@ -65,7 +101,7 @@ export default function Login() {
               required
               className="input-field"
               value={form.email}
-              onChange={event => setForm(prev => ({ ...prev, email: event.target.value }))}
+              onChange={e => setForm(prev => ({ ...prev, email: e.target.value }))}
               placeholder="admin@avicola.com"
             />
           </div>
@@ -77,7 +113,7 @@ export default function Login() {
               required
               className="input-field"
               value={form.password}
-              onChange={event => setForm(prev => ({ ...prev, password: event.target.value }))}
+              onChange={e => setForm(prev => ({ ...prev, password: e.target.value }))}
               placeholder="******"
             />
           </div>
@@ -87,19 +123,11 @@ export default function Login() {
               <label className="label">Tipo de usuario</label>
               <CheckboxGroup
                 options={[
-                  {
-                    value: 'admin',
-                    label: 'Administrador',
-                    description: 'Acceso completo al sistema, puede gestionar usuarios y configuraciones'
-                  },
-                  {
-                    value: 'usuario',
-                    label: 'Usuario',
-                    description: 'Acceso limitado a operaciones básicas del día a día'
-                  }
+                  { value: 'admin',   label: 'Administrador', description: 'Acceso completo al sistema' },
+                  { value: 'usuario', label: 'Usuario',       description: 'Acceso básico operativo' },
                 ]}
                 value={form.rol}
-                onChange={(newValue) => setForm(prev => ({ ...prev, rol: newValue }))}
+                onChange={v => setForm(prev => ({ ...prev, rol: v }))}
                 name="tipo-usuario"
               />
             </div>
@@ -110,12 +138,14 @@ export default function Login() {
           <button type="submit" disabled={loading} className="btn-primary w-full justify-center">
             {loading ? 'Validando...' : isRegister ? 'Registrarme' : 'Entrar'}
           </button>
+
           <button
             type="button"
             className="w-full text-sm text-gray-600 hover:text-gray-900"
-            onClick={() => {
-              setIsRegister(!isRegister)
-              setError('')
+            onClick={() => { 
+              const newMode = isRegister ? 'login' : 'register'
+              navigate(`/login?mode=${newMode}`)
+              setError('') 
             }}
           >
             {isRegister ? 'Ya tengo cuenta' : 'No tengo cuenta, registrarme'}

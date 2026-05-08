@@ -38,7 +38,7 @@ export const alimentosService = {
   },
 
   // Obtener registro por ID
-  async getById(id) {
+  async getbyId(id) {
     try {
       const response = await api.get(`/alimentos/${id}`)
       return response.alimento || response

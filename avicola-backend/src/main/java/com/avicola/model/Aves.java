@@ -38,8 +38,12 @@ public class Aves {
     @JsonIgnore
     private Galpon galpon;
 
-    // Este método le dice a Jackson que incluya "id_galpon" en el JSON.
-    // Con snake_case activo, getIdGalpon() → "id_galpon" en JSON. ✓
+    public Long getId() { return id; }
+    public void setId(Long id) { this.id = id; }
+
+    public Galpon getGalpon() { return galpon; }
+    public void setGalpon(Galpon galpon) { this.galpon = galpon; }
+
     public Long getIdGalpon() {
         return galpon != null ? galpon.getId() : null;
     }
@@ -48,19 +52,34 @@ public class Aves {
     @Column(nullable = false, length = 100)
     private String raza;
 
+    public String getRaza() { return raza; }
+    public void setRaza(String raza) { this.raza = raza; }
+
     @NotNull(message = "La fecha de nacimiento es obligatoria")
     @Column(name = "fecha_nacimiento", nullable = false)
     private LocalDate fechaNacimiento;
+
+    public LocalDate getFechaNacimiento() { return fechaNacimiento; }
+    public void setFechaNacimiento(LocalDate fechaNacimiento) { this.fechaNacimiento = fechaNacimiento; }
 
     @NotNull(message = "La fecha de llegada es obligatoria")
     @Column(name = "fecha_llegada", nullable = false)
     private LocalDate fechaLlegada;
 
+    public LocalDate getFechaLlegada() { return fechaLlegada; }
+    public void setFechaLlegada(LocalDate fechaLlegada) { this.fechaLlegada = fechaLlegada; }
+
     @NotBlank(message = "El origen es obligatorio")
     @Column(nullable = false, length = 150)
     private String origen;
 
+    public String getOrigen() { return origen; }
+    public void setOrigen(String origen) { this.origen = origen; }
+
     @Min(value = 1, message = "Debe haber al menos 1 ave")
     @Column(name = "total_aves", nullable = false)
     private Integer totalAves;
+
+    public Integer getTotalAves() { return totalAves; }
+    public void setTotalAves(Integer totalAves) { this.totalAves = totalAves; }
 }

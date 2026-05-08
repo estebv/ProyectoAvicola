@@ -2,7 +2,7 @@ import { NavLink, useLocation } from 'react-router-dom'
 import { useApp } from '../ui/context/AppContext'
 
 const nav = [
-  { to: '/',              icono: '📊', label: 'Inicio',           grupo: 'principal' },
+  { to: '/dashboard',     icono: '📊', label: 'Inicio',           grupo: 'principal' },
   { to: '/galpones',      icono: '🏠', label: 'Galpones',         grupo: 'registros' },
   { to: '/aves',          icono: '🐔', label: 'Aves',             grupo: 'registros' },
   { to: '/huevos',        icono: '🥚', label: 'Producción Huevos', grupo: 'registros' },
@@ -77,7 +77,7 @@ export default function Sidebar({ open, onClose }) {
                   >
                     <span className="text-xl w-7 text-center">{item.icono}</span>
                     <span>{item.label}</span>
-                    {item.to === '/' && alertas > 0 && (
+                    {item.to === '/dashboard' && alertas > 0 && (
                       <span className="ml-auto bg-red-500 text-white text-xs font-bold px-2 py-0.5 rounded-full">
                         {alertas}
                       </span>

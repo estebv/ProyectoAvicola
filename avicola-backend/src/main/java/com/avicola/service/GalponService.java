@@ -63,4 +63,11 @@ public class GalponService {
         galpon.setNumeroAves(nuevo);
         galponRepository.save(galpon);
     }
+
+    // Aumenta aves en el galpón cuando se registra un nuevo lote
+    public void aumentarAves(Long id, int cantidad) {
+        Galpon galpon = buscarPorId(id);
+        galpon.setNumeroAves(galpon.getNumeroAves() + cantidad);
+        galponRepository.save(galpon);
+    }
 }

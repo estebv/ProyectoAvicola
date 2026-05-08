@@ -3,30 +3,30 @@ package com.avicola.controller;
 import com.avicola.model.Condiciones;
 import com.avicola.service.CondicionesService;
 import jakarta.validation.Valid;
-import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.Map;
 
-// ─────────────────────────────────────────────────────────────────
+// ---------------------------------------------------------------
 //  CONTROLADOR: CondicionesController
 //
 //  Endpoints:
-//    GET    /api/condiciones                    → todos
-//    GET    /api/condiciones/{id}               → uno por ID
-//    GET    /api/condiciones/galpon/{idGalpon}  → de un galpón
-//    POST   /api/condiciones?idGalpon=1         → crear
-//    PUT    /api/condiciones/{id}?idGalpon=1    → actualizar
-//    DELETE /api/condiciones/{id}               → eliminar
-// ─────────────────────────────────────────────────────────────────
+//    GET    /api/condiciones                    -> todos
+//    GET    /api/condiciones/{id}               -> uno por ID
+//    GET    /api/condiciones/galpon/{idGalpon}  -> de un galpón
+//    POST   /api/condiciones?idGalpon=1         -> crear
+//    PUT    /api/condiciones/{id}?idGalpon=1    -> actualizar
+//    DELETE /api/condiciones/{id}               -> eliminar
+// ---------------------------------------------------------------
 @RestController
 @RequestMapping("/api/condiciones")
-@RequiredArgsConstructor
 public class CondicionesController {
 
-    private final CondicionesService condicionesService;
+    @Autowired
+    private CondicionesService condicionesService;
 
     @GetMapping
     public ResponseEntity<List<Condiciones>> listarTodos() {

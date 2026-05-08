@@ -3,7 +3,7 @@ package com.avicola.controller;
 import com.avicola.model.Huevos;
 import com.avicola.service.HuevosService;
 import jakarta.validation.Valid;
-import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -23,10 +23,10 @@ import java.util.Map;
 // ─────────────────────────────────────────────────────────────────
 @RestController
 @RequestMapping("/api/huevos")
-@RequiredArgsConstructor
 public class HuevosController {
 
-    private final HuevosService huevosService;
+    @Autowired
+    private HuevosService huevosService;
 
     @GetMapping
     public ResponseEntity<List<Huevos>> listarTodos() {

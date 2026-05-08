@@ -1,47 +1,107 @@
-import { CheckCircle, XCircle, AlertTriangle, X, Info } from 'lucide-react'
+import { CheckCircle, XCircle, AlertTriangle, X, Info, Loader2, Edit3 } from 'lucide-react'
 export { Checkbox, CheckboxGroup } from './Checkbox'
 
-// Toast de éxito/error
+// Toast de éxito/error mejorado para 2026
 export function Toast({ mensaje, tipo = 'exito', onClose }) {
   const config = {
-    exito: { bg: 'bg-green-50 border-green-200', icon: <CheckCircle className="text-green-600 shrink-0" size={22} />, text: 'text-green-800' },
-    error: { bg: 'bg-red-50 border-red-200', icon: <XCircle className="text-red-600 shrink-0" size={22} />, text: 'text-red-800' },
-    aviso: { bg: 'bg-amber-50 border-amber-200', icon: <AlertTriangle className="text-amber-600 shrink-0" size={22} />, text: 'text-amber-800' },
+    exito: { 
+      bg: 'bg-white/80 backdrop-blur-xl border-green-100', 
+      icon: <div className="w-10 h-10 bg-green-100 rounded-xl flex items-center justify-center"><CheckCircle className="text-green-600" size={20} /></div>, 
+      text: 'text-gray-900',
+      shadow: 'shadow-green-900/5'
+    },
+    error: { 
+      bg: 'bg-white/80 backdrop-blur-xl border-red-100', 
+      icon: <div className="w-10 h-10 bg-red-100 rounded-xl flex items-center justify-center"><XCircle className="text-red-600" size={20} /></div>, 
+      text: 'text-gray-900',
+      shadow: 'shadow-red-900/5'
+    },
+    aviso: { 
+      bg: 'bg-white/80 backdrop-blur-xl border-amber-100', 
+      icon: <div className="w-10 h-10 bg-amber-100 rounded-xl flex items-center justify-center"><AlertTriangle className="text-amber-600" size={20} /></div>, 
+      text: 'text-gray-900',
+      shadow: 'shadow-amber-900/5'
+    },
+    info: { 
+      bg: 'bg-white/80 backdrop-blur-xl border-blue-100', 
+      icon: <div className="w-10 h-10 bg-blue-100 rounded-xl flex items-center justify-center"><Info className="text-blue-600" size={20} /></div>, 
+      text: 'text-gray-900',
+      shadow: 'shadow-blue-900/5'
+    },
   }
-  const c = config[tipo]
+  const c = config[tipo] || config.exito
+  
   return (
-    <div className={`fixed top-5 right-5 z-50 flex items-center gap-3 px-5 py-4 rounded-2xl border-2 shadow-lg max-w-sm ${c.bg}`}>
+    <div className={`fixed bottom-8 left-1/2 -translate-x-1/2 z-[100] flex items-center gap-4 px-6 py-4 rounded-[2rem] border shadow-2xl animate-in fade-in slide-in-from-bottom-4 duration-300 min-w-[320px] ${c.bg} ${c.shadow}`}>
       {c.icon}
-      <p className={`font-semibold text-base ${c.text}`}>{mensaje}</p>
-      <button onClick={onClose} className="ml-2 text-gray-400 hover:text-gray-600"><X size={18} /></button>
+      <div className="flex-1">
+        <p className={`font-bold text-sm uppercase tracking-wider opacity-40 mb-0.5 ${c.text}`}>Sistema</p>
+        <p className={`font-bold text-base leading-tight ${c.text}`}>{mensaje}</p>
+      </div>
+      <button onClick={onClose} className="p-2 hover:bg-gray-100 rounded-full transition-colors">
+        <X size={18} className="text-gray-400" />
+      </button>
     </div>
   )
 }
 
-// Modal de confirmación
-export function ModalConfirm({ titulo, mensaje, onConfirm, onCancel, loading }) {
+// Modal genérico para 2026
+export function Modal({ titulo, children, onClose, onConfirm, confirmLabel = 'Guardar', cancelLabel = 'Cancelar', loading, icon: Icon = AlertTriangle, color = 'amber' }) {
+  const colors = {
+    amber: 'bg-amber-100 text-amber-500',
+    red:   'bg-red-100 text-red-500',
+    blue:  'bg-blue-100 text-blue-500',
+    brand: 'bg-brand-50 text-brand-200',
+  }
+
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4">
-      <div className="bg-white rounded-2xl shadow-xl p-6 max-w-sm w-full">
-        <div className="flex justify-center mb-4">
-          <div className="w-14 h-14 bg-amber-100 rounded-full flex items-center justify-center">
-            <AlertTriangle className="text-amber-500" size={28} />
+    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-gray-900/60 backdrop-blur-sm px-4 animate-in fade-in duration-200">
+      <div className="bg-white rounded-[2.5rem] shadow-2xl p-8 max-w-lg w-full animate-in zoom-in-95 duration-200 border border-gray-100">
+        <div className="flex items-center gap-4 mb-6">
+          <div className={`w-14 h-14 rounded-2xl flex items-center justify-center shrink-0 ${colors[color]}`}>
+            <Icon size={28} />
+          </div>
+          <div>
+            <h3 className="text-2xl font-black text-gray-900 leading-tight">{titulo}</h3>
+            <p className="text-sm text-gray-400 font-bold uppercase tracking-widest mt-0.5">Sistema Avícola</p>
           </div>
         </div>
-        <h3 className="text-xl font-bold text-gray-900 text-center mb-2">{titulo}</h3>
-        <p className="text-gray-600 text-center mb-6 text-base leading-relaxed">{mensaje}</p>
-        <div className="flex gap-3">
-          <button onClick={onCancel} className="flex-1 btn-secondary justify-center">
-            Cancelar
+        
+        <div className="mb-8">
+          {children}
+        </div>
+
+        <div className="flex gap-4">
+          <button onClick={onClose} disabled={loading} className="flex-1 btn-secondary justify-center py-4 rounded-2xl">
+            {cancelLabel}
           </button>
           <button onClick={onConfirm} disabled={loading}
-            className="flex-1 bg-brand-200 text-brand-900 font-semibold py-3 px-4 rounded-xl hover:bg-brand-400 hover:text-white transition-all flex items-center justify-center gap-2">
-            {loading ? <span className="w-5 h-5 border-2 border-current border-t-transparent rounded-full animate-spin" /> : null}
-            Guardar
+            className="flex-1 bg-brand-900 text-white font-bold py-4 px-6 rounded-2xl hover:bg-brand-800 transition-all flex items-center justify-center gap-2 shadow-xl shadow-brand-900/20 active:scale-95 disabled:opacity-50">
+            {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : confirmLabel}
           </button>
         </div>
       </div>
     </div>
+  )
+}
+
+// Modal de confirmación (basado en el nuevo Modal)
+export function ModalConfirm({ titulo, mensaje, onConfirm, onCancel, loading, tipo = 'peligro' }) {
+  const icon = tipo === 'peligro' ? XCircle : AlertTriangle
+  const color = tipo === 'peligro' ? 'red' : 'amber'
+  
+  return (
+    <Modal 
+      titulo={titulo} 
+      onClose={onCancel} 
+      onConfirm={onConfirm} 
+      loading={loading} 
+      icon={icon} 
+      color={color}
+      confirmLabel="Confirmar"
+    >
+      <p className="text-gray-600 text-lg leading-relaxed">{mensaje}</p>
+    </Modal>
   )
 }
 

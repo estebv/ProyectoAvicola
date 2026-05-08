@@ -1,83 +1,126 @@
 import { useState } from 'react'
 import Layout from '../components/layout/Layout'
 import { useApp } from '../components/ui/context/AppContext'
-import { Campo, SelectorGalpon, Toast, FilaVacia } from '../components/ui'
-import { Plus, Save, AlertTriangle } from 'lucide-react'
+import { Campo, SelectorGalpon, Toast, FilaVacia, Modal, ModalConfirm } from '../components/ui'
+import { Plus, Save, AlertTriangle, Edit3, Trash2 } from 'lucide-react'
 import { isAdmin } from '../helpers/permissions'
+import { api } from '../services/api'
 
 const hoy = new Date().toISOString().split('T')[0]
-
 const causas = [
-  { label: 'Calor excesivo', emoji: '🥵' },
+  { label: 'Calor excesivo',          emoji: '🥵' },
   { label: 'Enfermedad respiratoria', emoji: '🤧' },
-  { label: 'Aplastamiento', emoji: '😵' },
-  { label: 'Depredador', emoji: '🦊' },
-  { label: 'Falta de agua', emoji: '💧' },
-  { label: 'Enfermedad digestiva', emoji: '🤒' },
-  { label: 'Causa desconocida', emoji: '❓' },
-  { label: 'Otra causa', emoji: '📝' },
+  { label: 'Aplastamiento',           emoji: '😵' },
+  { label: 'Depredador',              emoji: '🦊' },
+  { label: 'Falta de agua',           emoji: '💧' },
+  { label: 'Enfermedad digestiva',    emoji: '🤒' },
+  { label: 'Causa desconocida',       emoji: '❓' },
+  { label: 'Otra causa',              emoji: '📝' },
 ]
-
 const formVacio = { id_galpon: '', fecha_muerte: hoy, causa_muerte: '', numero_aves: 1, estado_salud: 'Muerta' }
 
 export default function Mortalidad() {
   const { state, dispatch } = useApp()
   const admin = isAdmin(state.user)
-  const [form, setForm] = useState(formVacio)
-  const [errores, setErrores] = useState({})
-  const [toast, setToast] = useState(null)
+  const [form, setForm]               = useState(formVacio)
+  const [errores, setErrores]         = useState({})
+  const [toast, setToast]             = useState(null)
   const [mostrarForm, setMostrarForm] = useState(false)
+  const [guardando, setGuardando]     = useState(false)
+  const [registroEdit, setRegistroEdit] = useState(null)
+  const [registroElim, setRegistroElim] = useState(null)
+
+  function mostrarToast(tipo, mensaje) {
+    setToast({ tipo, mensaje })
+    setTimeout(() => setToast(null), 3000)
+  }
 
   function validar() {
     const e = {}
-    if (!form.id_galpon) e.id_galpon = 'Selecciona un galpón'
-    if (!form.causa_muerte) e.causa_muerte = 'Selecciona la causa'
-    if (!form.numero_aves || form.numero_aves < 1) e.numero_aves = 'Ingresa al menos 1'
+    if (!form.id_galpon)                              e.id_galpon    = 'Selecciona un galpón'
+    if (!form.causa_muerte)                           e.causa_muerte = 'Selecciona la causa'
+    if (!form.numero_aves || form.numero_aves < 1)    e.numero_aves  = 'Ingresa al menos 1'
     return e
   }
 
-  function guardar(e) {
+  async function guardar(e) {
     e.preventDefault()
     const e2 = validar()
     setErrores(e2)
     if (Object.keys(e2).length > 0) return
+    setGuardando(true)
+    try {
+      const guardado = await api.post(`/mortalidad?idGalpon=${form.id_galpon}`, {
+        estado_salud: form.estado_salud,
+        fecha_muerte: form.fecha_muerte,
+        causa_muerte: form.causa_muerte,
+        numero_aves:  Number(form.numero_aves),
+      })
+      dispatch({ type: 'ADD_MORTALIDAD', payload: guardado })
+      mostrarToast('exito', '✅ Mortalidad registrada correctamente')
+      setForm(formVacio)
+      setMostrarForm(false)
+    } catch (err) {
+      mostrarToast('error', `❌ ${err.message}`)
+    } finally {
+      setGuardando(false)
+    }
+  }
 
-    // Esta acción también descuenta aves del galpón en el reducer.
-    dispatch({
-      type: 'ADD_MORTALIDAD',
-      payload: { ...form, id_galpon: Number(form.id_galpon), numero_aves: Number(form.numero_aves) }
-    })
-    setToast({ tipo: 'exito', mensaje: '✅ Mortalidad registrada correctamente' })
-    setForm(formVacio)
-    setMostrarForm(false)
-    setTimeout(() => setToast(null), 3000)
+  // ── Solo admin ────────────────────────────────────────────────
+  function iniciarEdicion(registro) {
+    if (!admin) return
+    setRegistroEdit({ ...registro })
+  }
+
+  async function handleUpdate() {
+    if (!registroEdit.numero_aves || registroEdit.numero_aves < 1) return
+    
+    setGuardando(true)
+    try {
+      const actualizado = await api.put(
+        `/mortalidad/${registroEdit.id}?idGalpon=${registroEdit.id_galpon}`,
+        { 
+          estado_salud: registroEdit.estado_salud,
+          fecha_muerte: registroEdit.fecha_muerte,
+          causa_muerte: registroEdit.causa_muerte,
+          numero_aves:  Number(registroEdit.numero_aves),
+        }
+      )
+      dispatch({ type: 'UPDATE_MORTALIDAD', payload: actualizado })
+      mostrarToast('exito', '✅ Registro actualizado')
+      setRegistroEdit(null)
+    } catch (err) {
+      mostrarToast('error', `❌ ${err.message}`)
+    } finally {
+      setGuardando(false)
+    }
+  }
+
+  async function handleEliminar() {
+    setGuardando(true)
+    try {
+      await api.delete(`/mortalidad/${registroElim}`)
+      dispatch({ type: 'DELETE_MORTALIDAD', payload: { id: registroElim } })
+      mostrarToast('exito', '✅ Registro eliminado')
+      setRegistroElim(null)
+    } catch (err) {
+      mostrarToast('error', `❌ ${err.message}`)
+    } finally {
+      setGuardando(false)
+    }
   }
 
   const galponNombre = (id) => {
     const g = state.galpones.find(g => g.id === Number(id))
     return g ? `Galpón ${g.numero}` : '—'
   }
-
   const totalMuertes = state.mortalidad.reduce((s, m) => s + Number(m.numero_aves), 0)
-
-  function editarRegistro(registro) {
-    if (!admin) return
-    const numero_aves = Number(prompt('Nuevo número de aves muertas', registro.numero_aves))
-    if (!numero_aves || numero_aves < 1) return
-    dispatch({ type: 'UPDATE_MORTALIDAD', payload: { id: registro.id, numero_aves } })
-  }
-
-  function eliminarRegistro(id) {
-    if (!admin) return
-    if (!confirm('¿Eliminar este registro de mortalidad?')) return
-    dispatch({ type: 'DELETE_MORTALIDAD', payload: { id } })
-  }
 
   return (
     <Layout titulo="💀 Mortalidad">
       {toast && <Toast {...toast} onClose={() => setToast(null)} />}
 
-      {/* Aviso importante */}
       <div className="bg-red-50 border-2 border-red-200 rounded-2xl p-4 mb-5 flex items-start gap-3">
         <AlertTriangle className="text-red-500 shrink-0 mt-0.5" size={22} />
         <div>
@@ -88,7 +131,6 @@ export default function Mortalidad() {
         </div>
       </div>
 
-      {/* Total */}
       <div className="grid grid-cols-2 gap-3 mb-5">
         <div className="card p-4 flex items-center gap-3 border-red-100 border-2">
           <span className="text-3xl">💀</span>
@@ -117,12 +159,10 @@ export default function Mortalidad() {
         <div className="card p-6 mb-6 border-2 border-red-100">
           <h2 className="section-title mb-5">📋 Registrar mortalidad</h2>
           <form onSubmit={guardar} className="space-y-5">
-
             <Campo label="¿En qué galpón?" requerido error={errores.id_galpon}>
               <SelectorGalpon galpones={state.galpones} value={form.id_galpon}
                 onChange={v => setForm({ ...form, id_galpon: v })} />
             </Campo>
-
             <div className="grid grid-cols-2 gap-4">
               <Campo label="Fecha" requerido>
                 <input type="date" className="input-field" value={form.fecha_muerte}
@@ -130,11 +170,9 @@ export default function Mortalidad() {
               </Campo>
               <Campo label="¿Cuántas aves murieron?" requerido error={errores.numero_aves}>
                 <input type="number" min="1" className="input-field text-xl font-bold text-red-600"
-                  value={form.numero_aves}
-                  onChange={e => setForm({ ...form, numero_aves: e.target.value })} />
+                  value={form.numero_aves} onChange={e => setForm({ ...form, numero_aves: e.target.value })} />
               </Campo>
             </div>
-
             <Campo label="¿Cuál fue la causa?" requerido error={errores.causa_muerte}
               ayuda="Toca la causa principal de muerte">
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
@@ -144,19 +182,18 @@ export default function Mortalidad() {
                     className={`flex flex-col items-center gap-1.5 py-3 px-2 rounded-xl border-2 transition-all text-sm font-medium
                       ${form.causa_muerte === c.label
                         ? 'border-red-400 bg-red-50 text-red-800 ring-2 ring-red-200'
-                        : 'border-gray-200 bg-white text-gray-600 hover:border-gray-300'
-                      }`}>
+                        : 'border-gray-200 bg-white text-gray-600 hover:border-gray-300'}`}>
                     <span className="text-2xl">{c.emoji}</span>
                     <span className="text-xs text-center leading-tight">{c.label}</span>
                   </button>
                 ))}
               </div>
             </Campo>
-
             <div className="flex gap-3 pt-2">
               <button type="button" onClick={() => setMostrarForm(false)} className="btn-secondary">Cancelar</button>
-              <button type="submit" className="bg-red-500 hover:bg-red-600 text-white font-semibold px-5 py-3 rounded-xl flex items-center gap-2 transition-all active:scale-95 flex-1 justify-center">
-                <Save size={18} /> Guardar registro
+              <button type="submit" disabled={guardando}
+                className="bg-red-500 hover:bg-red-600 text-white font-semibold px-5 py-3 rounded-xl flex items-center gap-2 transition-all active:scale-95 flex-1 justify-center">
+                <Save size={18} /> {guardando ? 'Guardando...' : 'Guardar registro'}
               </button>
             </div>
           </form>
@@ -190,8 +227,16 @@ export default function Mortalidad() {
                     {admin && (
                       <td className="px-4 py-3 text-right">
                         <div className="flex gap-2 justify-end">
-                          <button type="button" className="btn-secondary !px-3 !py-1.5" onClick={() => editarRegistro(m)}>Editar</button>
-                          <button type="button" className="btn-danger !px-3 !py-1.5" onClick={() => eliminarRegistro(m.id)}>Eliminar</button>
+                          <button type="button" className="btn-secondary !px-3 !py-1.5"
+                            onClick={() => iniciarEdicion(m)}>
+                            <Edit3 size={16} />
+                            Editar
+                          </button>
+                          <button type="button" className="btn-danger !px-3 !py-1.5"
+                            onClick={() => setRegistroElim(m.id)}>
+                            <Trash2 size={16} />
+                            Eliminar
+                          </button>
                         </div>
                       </td>
                     )}
@@ -202,6 +247,47 @@ export default function Mortalidad() {
           </table>
         </div>
       </div>
+
+      {/* Modal de Edición */}
+      {registroEdit && (
+        <Modal 
+          titulo={`Editar Mortalidad - ${galponNombre(registroEdit.id_galpon)}`}
+          onClose={() => setRegistroEdit(null)}
+          onConfirm={handleUpdate}
+          loading={guardando}
+          icon={Edit3}
+          color="red"
+        >
+          <div className="space-y-4">
+            <Campo label="Número de aves muertas">
+              <input 
+                type="number" 
+                min="1"
+                className="input-field text-xl font-bold text-red-600"
+                value={registroEdit.numero_aves}
+                onChange={e => setRegistroEdit({...registroEdit, numero_aves: e.target.value})}
+              />
+            </Campo>
+            <Campo label="Causa de muerte">
+              <select className="input-field" value={registroEdit.causa_muerte}
+                onChange={e => setRegistroEdit({ ...registroEdit, causa_muerte: e.target.value })}>
+                {causas.map(c => <option key={c.label} value={c.label}>{c.emoji} {c.label}</option>)}
+              </select>
+            </Campo>
+          </div>
+        </Modal>
+      )}
+
+      {/* Modal de Eliminación */}
+      {registroElim && (
+        <ModalConfirm 
+          titulo="¿Eliminar registro?"
+          mensaje="Se borrará el registro de mortalidad. Ten en cuenta que esto NO devolverá automáticamente las aves al galpón si ya fueron descontadas."
+          onConfirm={handleEliminar}
+          onCancel={() => setRegistroElim(null)}
+          loading={guardando}
+        />
+      )}
     </Layout>
   )
 }

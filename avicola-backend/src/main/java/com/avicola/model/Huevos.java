@@ -28,7 +28,12 @@ public class Huevos {
     @JsonIgnore
     private Galpon galpon;
 
-    // Devuelve solo el ID del galpón en el JSON → "id_galpon"
+    public Long getId() { return id; }
+    public void setId(Long id) { this.id = id; }
+
+    public Galpon getGalpon() { return galpon; }
+    public void setGalpon(Galpon galpon) { this.galpon = galpon; }
+
     public Long getIdGalpon() {
         return galpon != null ? galpon.getId() : null;
     }
@@ -38,11 +43,17 @@ public class Huevos {
     @Column(name = "fecha_puesta", nullable = false)
     private LocalDate fechaPuesta;
 
+    public LocalDate getFechaPuesta() { return fechaPuesta; }
+    public void setFechaPuesta(LocalDate fechaPuesta) { this.fechaPuesta = fechaPuesta; }
+
     // Peso promedio de cada huevo en gramos
     @NotNull(message = "El peso es obligatorio")
     @DecimalMin(value = "0.1", message = "El peso debe ser mayor a 0")
     @Column(name = "peso_huevo", nullable = false)
     private Double pesoHuevo;
+
+    public Double getPesoHuevo() { return pesoHuevo; }
+    public void setPesoHuevo(Double pesoHuevo) { this.pesoHuevo = pesoHuevo; }
 
     // Calidad del huevo del 1 (muy mala) al 5 (excelente)
     @NotNull(message = "La calidad es obligatoria")
@@ -50,9 +61,15 @@ public class Huevos {
     @Column(name = "calidad_huevo", nullable = false)
     private Integer calidadHuevo;
 
+    public Integer getCalidadHuevo() { return calidadHuevo; }
+    public void setCalidadHuevo(Integer calidadHuevo) { this.calidadHuevo = calidadHuevo; }
+
     // Total de huevos recogidos ese día en ese galpón
     @NotNull(message = "El total es obligatorio")
     @Min(value = 0)
     @Column(name = "total_huevo", nullable = false)
     private Integer totalHuevo;
+
+    public Integer getTotalHuevo() { return totalHuevo; }
+    public void setTotalHuevo(Integer totalHuevo) { this.totalHuevo = totalHuevo; }
 }

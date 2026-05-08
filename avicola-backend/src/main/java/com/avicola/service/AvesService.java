@@ -5,6 +5,7 @@ import com.avicola.model.Galpon;
 import com.avicola.repository.AvesRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 
 @Service
@@ -31,10 +32,18 @@ public class AvesService {
     }
 
     // Registra un nuevo lote de aves y lo asocia al galpón
+    @Transactional
     public Aves crear(Aves aves, Long idGalpon) {
         Galpon galpon = galponService.buscarPorId(idGalpon);
         aves.setGalpon(galpon);
-        return avesRepository.save(aves);
+        
+        // Guardar el lote
+        Aves guardado = avesRepository.save(aves);
+        
+        // Aumentar las aves en el galpón
+        galponService.aumentarAves(idGalpon, aves.getTotalAves());
+        
+        return guardado;
     }
 
     // Actualiza los datos de un lote

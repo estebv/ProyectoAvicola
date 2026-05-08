@@ -3,7 +3,7 @@ package com.avicola.controller;
 import com.avicola.model.Alimentos;
 import com.avicola.service.AlimentosService;
 import jakarta.validation.Valid;
-import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -23,10 +23,10 @@ import java.util.Map;
 // ─────────────────────────────────────────────────────────────────
 @RestController
 @RequestMapping("/api/alimentos")
-@RequiredArgsConstructor
 public class AlimentosController {
 
-    private final AlimentosService alimentosService;
+    @Autowired
+    private AlimentosService alimentosService;
 
     @GetMapping
     public ResponseEntity<List<Alimentos>> listarTodos() {

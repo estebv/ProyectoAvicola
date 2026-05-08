@@ -3,30 +3,30 @@ package com.avicola.controller;
 import com.avicola.model.Mortalidad;
 import com.avicola.service.MortalidadService;
 import jakarta.validation.Valid;
-import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.Map;
 
-// ─────────────────────────────────────────────────────────────────
+// ---------------------------------------------------------------
 //  CONTROLADOR: MortalidadController
 //
 //  Endpoints:
-//    GET    /api/mortalidad                    → todos
-//    GET    /api/mortalidad/{id}               → uno por ID
-//    GET    /api/mortalidad/galpon/{idGalpon}  → de un galpón
-//    POST   /api/mortalidad?idGalpon=1         → crear (descuenta aves)
-//    PUT    /api/mortalidad/{id}?idGalpon=1    → actualizar
-//    DELETE /api/mortalidad/{id}               → eliminar
-// ─────────────────────────────────────────────────────────────────
+//    GET    /api/mortalidad                    -> todos
+//    GET    /api/mortalidad/{id}               -> uno por ID
+//    GET    /api/mortalidad/galpon/{idGalpon}  -> de un galpón
+//    POST   /api/mortalidad?idGalpon=1         -> crear (descuenta aves)
+//    PUT    /api/mortalidad/{id}?idGalpon=1    -> actualizar
+//    DELETE /api/mortalidad/{id}               -> eliminar
+// ---------------------------------------------------------------
 @RestController
 @RequestMapping("/api/mortalidad")
-@RequiredArgsConstructor
 public class MortalidadController {
 
-    private final MortalidadService mortalidadService;
+    @Autowired
+    private MortalidadService mortalidadService;
 
     @GetMapping
     public ResponseEntity<List<Mortalidad>> listarTodos() {

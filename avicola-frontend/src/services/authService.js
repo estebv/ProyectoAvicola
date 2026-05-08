@@ -16,9 +16,7 @@ function getUsers() {
 }
 
 export async function loginWithEmail({ email, password }) {
-  // Simula latencia de backend para visualizar mejor el flujo de login.
-  await new Promise(resolve => setTimeout(resolve, 350))
-
+  
   // Normaliza email para evitar errores por mayúsculas/espacios.
   const normalizedEmail = email.trim().toLowerCase()
   const foundUser = getUsers().find(user => user.email === normalizedEmail && user.password === password)
